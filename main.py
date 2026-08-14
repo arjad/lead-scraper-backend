@@ -112,6 +112,10 @@ async def get_job_status(job_id: str):
         raise HTTPException(status_code=404, detail="Job not found.")
     return jobs[job_id]
 
+@app.get("/")
+@app.get("/health")
+async def health_check():
+    return {"status": "ok", "message": "Lead scraper backend is running"}
 
 
 if __name__ == "__main__":
