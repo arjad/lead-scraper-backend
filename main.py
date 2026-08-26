@@ -36,7 +36,7 @@ async def extract_emails(request: UrlList):
     # Initialize Playwright
     async with async_playwright() as p:
         # Launch browser in headful mode
-        browser = await p.chromium.launch(headless=False)
+        browser = await p.chromium.launch(headless=True)
         
         # Process each URL one by one sequentially
         for url in request.urls:
@@ -80,7 +80,7 @@ async def run_scraping_job(job_id: str, request: LeadBatch):
                 try:
                     # Launch and close browser for each website
                     async with async_playwright() as p:
-                        browser = await p.chromium.launch(headless=False)
+                        browser = await p.chromium.launch(headless=True)
                         result = await scrape_website(url, browser, proxy=request.proxy)
                         await browser.close()
                     
