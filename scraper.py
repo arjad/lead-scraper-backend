@@ -56,7 +56,7 @@ async def scrape_website(url: str, browser, proxy: str = None) -> ScrapeResult:
         page = await context.new_page()
         
         # Navigate to main URL
-        await page.goto(url, wait_until="domcontentloaded", timeout=15000)
+        await page.goto(url, wait_until="domcontentloaded", timeout=30000)
         content = await page.content()
         business_name = await page.title()
         
@@ -73,7 +73,7 @@ async def scrape_website(url: str, browser, proxy: str = None) -> ScrapeResult:
         contact_url = await find_contact_url(page, url)
         if contact_url and contact_url != url:
             try:
-                await page.goto(contact_url, wait_until="domcontentloaded", timeout=15000)
+                await page.goto(contact_url, wait_until="domcontentloaded", timeout=30000)
                 contact_content = await page.content()
                 
                 found_emails.update(extract_emails(contact_content))
