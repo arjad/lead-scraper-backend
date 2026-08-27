@@ -77,6 +77,7 @@ async def run_scraping_job(job_id: str, request: LeadBatch):
                 if not url.startswith(('http://', 'https://')):
                     url = 'http://' + url
                 
+                print(f"Starting to scrape: {url}")
                 try:
                     # Launch and close browser for each website
                     async with async_playwright() as p:
@@ -95,7 +96,9 @@ async def run_scraping_job(job_id: str, request: LeadBatch):
                     if result.twitter:
                         lead.twitter = ", ".join(result.twitter)
                 except Exception as scrape_err:
+                    print(f"Error scraping {url}: {scrape_err}")
                     lead.error = f"Scraping failed: {str(scrape_err)}"
+                print(f"Finished scraping: {url}")
                     
             enriched_leads.append(lead)
             jobs[job_id]["completed_leads"] += 1
