@@ -11,8 +11,15 @@ ADDRESS_REGEX = r'\b\d{1,5}\s+(?:[A-Za-z0-9#-]+\s+){1,4}(?:Street|St|Avenue|Ave|
 
 def extract_emails(text: str) -> List[str]:
     emails = re.findall(EMAIL_REGEX, text)
-    # Lowercase emails to ensure strict deduplication
-    return list(set(email.lower() for email in emails))
+    
+    valid_emails = set()
+    for email in emails:
+        email = email.lower()
+        # Filter out sentry logs and make absolutely sure there is an @
+        if "@" in email and "sentry" not in email:
+            valid_emails.add(email)
+            
+    return list(valid_emails)
 
 def extract_phones(text: str) -> List[str]:
     found_phones = set(re.findall(PHONE_REGEX, text))

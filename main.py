@@ -21,7 +21,7 @@ jobs = {}
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],  # Allows all origins
-    allow_credentials=True,
+    allow_credentials=False,
     allow_methods=["*"],  # Allows all methods
     allow_headers=["*"],  # Allows all headers
 )
@@ -70,14 +70,17 @@ async def process_leads(request: LeadBatch, background_tasks: BackgroundTasks):
 
 async def run_scraping_job(job_id: str, request: LeadBatch):
     try:
+        import time
+        start_time = time.time()
+        print(f"\n=== Starting scraping batch of {len(request.leads)} leads ===")
         enriched_leads = []
-        for lead in request.leads:
+        for i, lead in enumerate(request.leads, 1):
             if lead.website:
                 url = lead.website
                 if not url.startswith(('http://', 'https://')):
                     url = 'http://' + url
                 
-                print(f"Starting to scrape: {url}")
+                print(f"Starting to scrape [{i}/{len(request.leads)}]: {url}")
                 try:
                     # Launch and close browser for each website
                     async with async_playwright() as p:
@@ -105,6 +108,8 @@ async def run_scraping_job(job_id: str, request: LeadBatch):
             jobs[job_id]["results"] = enriched_leads
 
         jobs[job_id]["status"] = "completed"
+        end_time = time.time()
+        print(f"=== Finished scraping batch of {len(request.leads)} leads in {end_time - start_time:.2f} seconds ===\n")
     except Exception as e:
         jobs[job_id]["status"] = "failed"
         jobs[job_id]["error"] = str(e)
