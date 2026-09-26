@@ -1,0 +1,7 @@
+{
+  "name": "lead-scraper-backend",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "lsof -t -i:8000 | xargs kill -9 2>/dev/null || true; ./venv/bin/uvicorn main:app --reload"
+  }
+}

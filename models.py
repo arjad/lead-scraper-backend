@@ -14,6 +14,7 @@ class ScrapeResult(BaseModel):
     instagram: List[str] = []
     facebook: List[str] = []
     twitter: List[str] = []
+    linkedin: List[str] = []
 
 class Lead(BaseModel):
     name: Optional[str] = ""
@@ -29,6 +30,7 @@ class Lead(BaseModel):
     facebook: Optional[str] = ""
     instagram: Optional[str] = ""
     twitter: Optional[str] = ""
+    linkedin: Optional[str] = ""
     error: Optional[str] = ""
 
 class LeadBatch(BaseModel):

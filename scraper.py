@@ -13,10 +13,12 @@ def extract_emails(text: str) -> List[str]:
     emails = re.findall(EMAIL_REGEX, text)
     
     valid_emails = set()
+    invalid_extensions = ('.png', '.jpg', '.jpeg', '.gif', '.svg', '.webp')
+    
     for email in emails:
         email = email.lower()
-        # Filter out sentry logs and make absolutely sure there is an @
-        if "@" in email and "sentry" not in email:
+        # Filter out sentry logs, example emails, image files masquerading as emails, and make absolutely sure there is an @
+        if "@" in email and "sentry" not in email and "example" not in email and not email.endswith(invalid_extensions):
             valid_emails.add(email)
             
     return list(valid_emails)
@@ -31,7 +33,7 @@ def extract_addresses(text: str) -> List[str]:
 
 async def extract_socials(page) -> dict:
     links = await page.locator("a").evaluate_all("elements => elements.map(e => e.href)")
-    socials = {"instagram": set(), "facebook": set(), "twitter": set()}
+    socials = {"instagram": set(), "facebook": set(), "twitter": set(), "linkedin": set()}
     for link in links:
         if link:
             l = link.lower()
@@ -41,6 +43,8 @@ async def extract_socials(page) -> dict:
                 socials["facebook"].add(link.rstrip('/'))
             elif 'twitter.com' in l or 'x.com' in l:
                 socials["twitter"].add(link.rstrip('/'))
+            elif 'linkedin.com' in l:
+                socials["linkedin"].add(link.rstrip('/'))
     return {k: list(v) for k, v in socials.items()}
 
 async def find_contact_url(page, base_url: str) -> str:
@@ -75,6 +79,7 @@ async def scrape_website(url: str, browser, proxy: str = None) -> ScrapeResult:
         found_instagram = set(socials_dict["instagram"])
         found_facebook = set(socials_dict["facebook"])
         found_twitter = set(socials_dict["twitter"])
+        found_linkedin = set(socials_dict["linkedin"])
 
         # Check for contact page
         contact_url = await find_contact_url(page, url)
@@ -91,6 +96,7 @@ async def scrape_website(url: str, browser, proxy: str = None) -> ScrapeResult:
                 found_instagram.update(contact_socials["instagram"])
                 found_facebook.update(contact_socials["facebook"])
                 found_twitter.update(contact_socials["twitter"])
+                found_linkedin.update(contact_socials["linkedin"])
             except Exception as e:
                 print(f"Failed to load contact page {contact_url}: {e}")
 
@@ -104,7 +110,8 @@ async def scrape_website(url: str, browser, proxy: str = None) -> ScrapeResult:
             addresses=list(found_addresses),
             instagram=list(found_instagram),
             facebook=list(found_facebook),
-            twitter=list(found_twitter)
+            twitter=list(found_twitter),
+            linkedin=list(found_linkedin)
         )
     except Exception as e:
         print(f"Error scraping {url}: {e}")

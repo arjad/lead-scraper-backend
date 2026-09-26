@@ -98,6 +98,8 @@ async def run_scraping_job(job_id: str, request: LeadBatch):
                         lead.instagram = ", ".join(result.instagram)
                     if result.twitter:
                         lead.twitter = ", ".join(result.twitter)
+                    if result.linkedin:
+                        lead.linkedin = ", ".join(result.linkedin)
                 except Exception as scrape_err:
                     print(f"Error scraping {url}: {scrape_err}")
                     lead.error = f"Scraping failed: {str(scrape_err)}"
@@ -134,9 +136,9 @@ if __name__ == "__main__":
         results = await extract_emails(test_request)
         
         # Print results in a table format
-        print("\n" + "="*185)
-        print(f"{'URL / Name':<35} | {'Business Name':<20} | {'Emails':<25} | {'Phones':<20} | {'Instagram':<15} | {'Facebook':<15} | {'Twitter':<15} | {'Addresses'}")
-        print("-" * 185)
+        print("\n" + "="*200)
+        print(f"{'URL / Name':<35} | {'Business Name':<20} | {'Emails':<25} | {'Phones':<20} | {'Instagram':<15} | {'Facebook':<15} | {'Twitter':<15} | {'LinkedIn':<15} | {'Addresses'}")
+        print("-" * 200)
         
         for r in results:
             url_display = r.url[:32] + "..." if len(r.url) > 35 else r.url
@@ -146,11 +148,12 @@ if __name__ == "__main__":
             instagram_display = ", ".join(r.instagram)[:12] + "..." if len(", ".join(r.instagram)) > 15 else ", ".join(r.instagram)
             facebook_display = ", ".join(r.facebook)[:12] + "..." if len(", ".join(r.facebook)) > 15 else ", ".join(r.facebook)
             twitter_display = ", ".join(r.twitter)[:12] + "..." if len(", ".join(r.twitter)) > 15 else ", ".join(r.twitter)
+            linkedin_display = ", ".join(r.linkedin)[:12] + "..." if len(", ".join(r.linkedin)) > 15 else ", ".join(r.linkedin)
             addresses_display = ", ".join(r.addresses)[:30] + "..." if len(", ".join(r.addresses)) > 30 else ", ".join(r.addresses)
             
-            print(f"{url_display:<35} | {business_name_display:<20} | {emails_display:<25} | {phones_display:<20} | {instagram_display:<15} | {facebook_display:<15} | {twitter_display:<15} | {addresses_display}")
+            print(f"{url_display:<35} | {business_name_display:<20} | {emails_display:<25} | {phones_display:<20} | {instagram_display:<15} | {facebook_display:<15} | {twitter_display:<15} | {linkedin_display:<15} | {addresses_display}")
                 
-        print("="*185 + "\n")
+        print("="*200 + "\n")
 
         # Save to CSV and Excel
         import os
@@ -162,7 +165,7 @@ if __name__ == "__main__":
         # You can remove any field from this list (e.g., remove "Facebook") to exclude it from the Excel/CSV
         selected_fields = [
             "URL", "Business Name", "Emails", "Phones", 
-            "Instagram", "Facebook", "Twitter", "Addresses"
+            "Instagram", "Facebook", "Twitter", "LinkedIn", "Addresses"
         ]
         
         data = []
@@ -176,6 +179,7 @@ if __name__ == "__main__":
                 "Instagram": ", ".join(r.instagram),
                 "Facebook": ", ".join(r.facebook),
                 "Twitter": ", ".join(r.twitter),
+                "LinkedIn": ", ".join(r.linkedin),
                 "Addresses": ", ".join(r.addresses)
             }
             # Filter the row data to only include the selected fields
